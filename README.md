@@ -1,6 +1,6 @@
 # MarvsAddon-Stormworks
 
-This is the addon for the Stormworks server "NAME" (We have no name if you know one let us know).
+This is the addon for the Stormworks server {COOL NAME} (We have no name if you know one let us know).
 The server is an Roleplay server. Everyone has his own bank account with his own money.(I dont know how i should detect who has selled or rescued for how much money).
 
 Realism Roleplay Stormworks Server Roadmap
