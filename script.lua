@@ -359,7 +359,8 @@ end
 
 function updateUIAll()
     local player = server.getPlayers()
-    for k, peer_id in pairs(player.id) do
+    for k, player in pairs(player) do
+        local peer_id = player.id
         updateUIForPlayer(peer_id)
     end
 end
