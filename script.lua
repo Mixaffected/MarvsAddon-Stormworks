@@ -124,7 +124,7 @@ end
 function onPlayerLeave(steam_id, name, peer_id, admin, auth)
     local steam_id = getPlayerSteamId(peer_id)
     server.announce("[Server]", name .. " left the game")
-    g_savedata.playerData[steam_id].moneyUiId = ""
+    g_savedata.playerData[steam_id].moneyUiId = 0
     server.save("scriptsave")
 end
 
