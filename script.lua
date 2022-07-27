@@ -145,6 +145,11 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
             notify(one, "Bank", "$" .. two .. " were sended to your bank account!", 8)
         end
 
+    elseif (command == "?setMoney" and isTagedWith(peer_id, "operator")) then
+        setMoney(one, two)
+        notify(peer_id, "Bank", "The balance of " .. one .. " was set to $" .. two, 8)
+        notify(one, "Bank", "Your balance was set to " .. two, 8)
+
     elseif (command == "?removeMoney" and isTagedWith(peer_id, "operator")) then
         removeMoney(one, two)
         notify(peer_id, "Bank", "$" .. two .. " were removed from the bank account of " .. one, 8)
@@ -232,6 +237,15 @@ end
 function getMoney(peer_id)
     local steam_id = getPlayerSteamId(peer_id)
     return roundToTwoDecimalPlaces(g_savedata.playerData[steam_id].money)
+end
+
+function setMoney(peer_id, amount)
+    local steam_id = getPlayerSteamId(peer_id)
+    local amount = tonumber(amount)
+    if (not isNumber(amount)) then
+        return
+    end
+    g_savedata.playerData[steam_id].money = amount
 end
 
 function addMoney(peer_id, amount)
