@@ -139,27 +139,27 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         getTagsFromPlayer(peer_id)
 
     elseif (command == "?addMoney" and isTagedWith(peer_id, "operator")) then
-        local isSuccess = addMoney(one, tonumber(two))
+        local isSuccess = addMoney(one, two)
         if (isSuccess) then
             notify(peer_id, "Money Printing Company", "Assignment done!", 8)
             notify(one, "Bank", "$" .. two .. " were sended to your bank account!", 8)
         end
 
     elseif (command == "?removeMoney" and isTagedWith(peer_id, "operator")) then
-        removeMoney(one, tonumber(two))
+        removeMoney(one, two)
         notify(peer_id, "Bank", "$" .. two .. " were removed from the bank account of " .. one, 8)
         notify(one, "Bank", "$" .. two .. " were removed from your bank account!", 8)
 
     elseif (command == "?transferMoney" and isTagedWith(peer_id, "operator")) then
         -- from someone to someone just for operators
-        transferMoney(one, two, tonumber(three))
+        transferMoney(one, two, three)
         notify(peer_id, "Bank", "$" .. two .. " were transfered from " .. one .. " to " .. two, 8)
         notify(one, "Bank", "$" .. two .. " were sended to your bank account!", 8)
         notify(two, "Bank", "$" .. two .. " were removed from your bank account!", 8)
 
     elseif (command == "?sendMoney") then
         -- from your self to someone for everybody
-        transferMoney(peer_id, one, tonumber(two))
+        transferMoney(peer_id, one, two)
         notify(peer_id, "Bank", "You sended $" .. two .. " to " .. one, 8)
         notify(one, "Bank", "$" .. two .. " were sended to your bank account from " .. playerData.name .. "!", 8)
 
@@ -236,6 +236,7 @@ end
 
 function addMoney(peer_id, amount)
     local steam_id = getPlayerSteamId(peer_id)
+    local amount = tonumber(amount)
     if (not isNumber(amount)) then
         return
     end
@@ -245,6 +246,7 @@ end
 
 function removeMoney(peer_id, amount)
     local steam_id = getPlayerSteamId(peer_id)
+    local amount = tonumber(amount)
     if (not isNumber(amount)) then
         return
     end
@@ -255,6 +257,7 @@ end
 function transferMoney(peer_id, target_peer_id, amount)
     local payerSteam_id = getPlayerSteamId(peer_id)
     local targetSteam_id = getPlayerSteamId(target_peer_id)
+    local amount = tonumber(amount)
     if (not isNumber(amount)) then
         return
     end
