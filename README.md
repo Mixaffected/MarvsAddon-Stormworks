@@ -3,6 +3,9 @@
 This is the addon for the Stormworks server {COOL NAME} (We have no name if you know one let us know).
 The server is an Roleplay server. Everyone has his own bank account with his own money.(I dont know how i should detect who has selled or rescued for how much money).
 
+Join us!
+Discord: https://discord.gg/2pcKA74Qgb
+
 Realism Roleplay Stormworks Server Roadmap
 
 To Do:
