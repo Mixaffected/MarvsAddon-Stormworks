@@ -18,10 +18,13 @@ discordServerInvite = "https://discord.gg/2pcKA74Qgb"
 
 
 -- time calculation
-ticksSinceLastMin = 0
-minsSinceLastHour = 0
-hoursSinceLastDay = 0
+ticksSinceServerStart = 0
+minsSinceServerStart = 0
+hoursSinceServerStart = 0
 daysSinceServerStart = 0
+
+-- update balance display
+ticksSinceLastDisplayUpdate = 0
 
 
 function onCreate(is_world_create)
@@ -60,21 +63,29 @@ end
 
 function onTick(game_ticks)
     -- time calculation
-    ticksSinceLastMin = ticksSinceLastMin + game_ticks
-    if (ticksSinceLastMin == 3600) then
-        ticksSinceLastMin = 0
-        minsSinceLastHour = minsSinceLastHour + 1
-    elseif (ticksSinceLastMin > 3600) then
-        ticksSinceLastMin = ticksSinceLastMin - 3600
-        minsSinceLastHour = minsSinceLastHour + 1
+    ticksSinceServerStart = ticksSinceServerStart + game_ticks
+    if (ticksSinceServerStart == 3600) then
+        ticksSinceServerStart = 0
+        minsSinceServerStart = minsSinceServerStart + 1
+    elseif (ticksSinceServerStart > 3600) then
+        ticksSinceServerStart = ticksSinceServerStart - 3600
+        minsSinceServerStart = minsSinceServerStart + 1
     end
-    if (minsSinceLastHour == 60) then
-        minsSinceLastHour = 0
-        hoursSinceLastDay = hoursSinceLastDay + 1
+    if (minsSinceServerStart == 60) then
+        minsSinceServerStart = 0
+        hoursSinceServerStart = hoursSinceServerStart + 1
     end
-    if (hoursSinceLastDay == 24) then
-        hoursSinceLastDay = 0
+    if (hoursSinceServerStart == 24) then
+        hoursSinceServerStart = 0
         daysSinceServerStart = daysSinceServerStart + 1
+    end
+
+    -- update balance display
+    if (
+        (ticksSinceServerStart - ticksSinceLastDisplayUpdate) >= 60 or
+            (ticksSinceServerStart - ticksSinceLastDisplayUpdate) < 0) then
+        ticksSinceLastDisplayUpdate = ticksSinceServerStart
+        updateUIAll()
     end
 end
 
