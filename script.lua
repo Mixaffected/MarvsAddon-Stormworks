@@ -62,6 +62,7 @@ function onTick(game_ticks)
     -- time calculation
     ticksSinceLastMin = ticksSinceLastMin + game_ticks
     if (ticksSinceLastMin == 3600) then
+        ticksSinceLastMin = 0
         minsSinceLastHour = minsSinceLastHour + 1
     elseif (ticksSinceLastMin > 3600) then
         ticksSinceLastMin = ticksSinceLastMin - 3600
