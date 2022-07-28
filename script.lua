@@ -161,10 +161,15 @@ end
 -- return all data about one player steam_id is converted to string
 function getPlayerData(peer_id)
     local players = server.getPlayers()
+    local player = { id = 0, name = "", steam_id = "", auth = false, admin = false }
     for i, v in pairs(players) do
         if (tostring(v["id"]) == tostring(peer_id)) then
-            players[i].steam_id = tostring(players[i].steam_id)
-            return players[i]
+            player.id = v.id
+            player.name = v.name
+            player.steam_id = tostring(v.steam_id)
+            player.auth = v.auth
+            player.admin = v.admin
+            return player
         end
     end
 end
