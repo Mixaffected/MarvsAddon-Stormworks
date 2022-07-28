@@ -32,29 +32,6 @@ function onCreate(is_world_create)
         g_savedata.gameData.startMoney = tonumber(property.slider("Start Money", 20000, 200000, 10000, 20000))
     end
     newPlayerTableData.money = g_savedata.gameData.startMoney
-
-    -- error output if something is corrupted
-    if (newPlayerTableData.money ~= nil and newPlayerTableData.money > 0) then
-        -- executed if all is right
-        server.notify(-1, "[MarvinsAddon]", "MarvinsAddon is loaded in!", 8)
-    else
-        local wentWrong = {
-            code = 1,
-            message = "'newPlayerTableData' startMoney not set correctly."
-        }
-        if (g_savedata.gameData.startMoney == nil or g_savedata.gameData.startMoney == 0) then
-            wentWrong = {
-                code = 0,
-                message = "'g_savedata' is corrupted."
-            }
-        end
-        server.notify(-1, "[MarvinsAddon]", "Failed to load MarvinsAddon in. " .. wentWrong.message, 8)
-        if (wentWrong.code == 1) then
-            g_savedata.errorData.failedToLoad = true
-        elseif (wentWrong.code == 0) then
-            g_savedata.errorData.savedataCorrupted = true
-        end
-    end
 end
 
 function onDestroy()
@@ -90,6 +67,7 @@ function onTick(game_ticks)
 end
 
 function onPlayerJoin(steam_id, name, peer_id, admin, auth)
+    local player = getPlayerData(peer_id)
     local steam_id = getPlayerSteamId(peer_id)
     local ui_id = server.getMapID()
     server.addAuth(peer_id)
@@ -98,14 +76,14 @@ function onPlayerJoin(steam_id, name, peer_id, admin, auth)
     -- if bank account exists
     if (g_savedata.playerData[steam_id] ~= nil) then
         g_savedata.playerData[steam_id].moneyUiId = ui_id
-        server.setPopupScreen(peer_id, ui_id, "", true, " Balance: $" .. getMoney(peer_id), 0.56, 0.88)
+        updateUIForPlayer(peer_id)
         server.save("scriptsave")
         return
     end
 
     -- if new player
     g_savedata.playerData[steam_id] = newPlayerTableData
-    g_savedata.playerData[steam_id].name = tostring(name)
+    g_savedata.playerData[steam_id].name = tostring(player.name)
     g_savedata.playerData[steam_id].steam_id = tostring(steam_id)
     g_savedata.playerData[steam_id].moneyUiId = ui_id
 
@@ -113,6 +91,7 @@ function onPlayerJoin(steam_id, name, peer_id, admin, auth)
         if (v == steam_id) then
             addTag(peer_id, "owner")
             addTag(peer_id, "operator")
+            server.addAdmin(peer_id)
         end
     end
 
@@ -124,13 +103,13 @@ end
 function onPlayerLeave(steam_id, name, peer_id, admin, auth)
     local steam_id = getPlayerSteamId(peer_id)
     server.announce("[Server]", name .. " left the game")
-    g_savedata.playerData[steam_id].moneyUiId = 0
+    server.removeMapID(peer_id, g_savedata.playerData[steam_id].moneyUiId)
     server.save("scriptsave")
 end
 
 function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one, two, three, four, five)
     local playerData = getPlayerData(peer_id)
-    local steam_id = playerData.steam_id
+    local steam_id = getPlayerSteamId(peer_id)
     if (command == "?help") then
         server.announce("[MarvinsAddon]", "Help not available")
 
