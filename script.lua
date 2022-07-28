@@ -114,8 +114,11 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         server.announce("[MarvinsAddon]", "Help not available")
 
     elseif (command == "?tags") then
-        announce("[MarvinsAddon]", "Tags: " .. getTagsFromPlayer(peer_id), peer_id)
-        getTagsFromPlayer(peer_id)
+        local one = tonumber(one)
+        if (not isNumber(one)) then
+            return
+        end
+        announce("[MarvinsAddon]", "Tags: " .. getTagsFromPlayer(one), peer_id)
 
     elseif (command == "?addMoney" and isTagedWith(peer_id, "operator")) then
         local isSuccess = addMoney(one, two)
