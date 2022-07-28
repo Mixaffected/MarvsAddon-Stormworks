@@ -186,17 +186,11 @@ end
 -- tag functions
 function getTagsFromPlayer(peer_id)
     local steam_id = getPlayerSteamId(peer_id)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     return getStringFromTable(g_savedata.playerData[steam_id].tags)
 end
 
 function isTagedWith(peer_id, tag)
     local steam_id = getPlayerSteamId(peer_id)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     for i, v in pairs(g_savedata.playerData[steam_id].tags) do
         if (tostring(v) == tostring(tag)) then
             return true
@@ -207,9 +201,6 @@ end
 
 function addTag(peer_id, tag)
     local steam_id = getPlayerSteamId(peer_id)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     for i, v in pairs(g_savedata.playerData[steam_id].tags) do
         if (tostring(v) == tostring(tag)) then
             return
@@ -221,9 +212,6 @@ end
 
 function removeTag(peer_id, tag)
     local steam_id = getPlayerSteamId(peer_id)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     for i, v in pairs(g_savedata.playerData[steam_id].tags) do
         if (tostring(v) == tostring(tag)) then
             table.remove(g_savedata.playerData[steam_id].tags, i)
@@ -235,18 +223,12 @@ end
 -- money functions
 function getMoney(peer_id)
     local steam_id = getPlayerSteamId(peer_id)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     return roundToTwoDecimalPlaces(g_savedata.playerData[steam_id].money)
 end
 
 function setMoney(peer_id, amount)
     local steam_id = getPlayerSteamId(peer_id)
     local amount = tonumber(amount)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     if (not isNumber(amount)) then
         return
     end
@@ -254,11 +236,9 @@ function setMoney(peer_id, amount)
 end
 
 function addMoney(peer_id, amount)
+    local peer_id = tonumber(peer_id)
     local steam_id = getPlayerSteamId(peer_id)
     local amount = tonumber(amount)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     if (not isNumber(amount)) then
         return
     end
@@ -269,9 +249,6 @@ end
 function removeMoney(peer_id, amount)
     local steam_id = getPlayerSteamId(peer_id)
     local amount = tonumber(amount)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     if (not isNumber(amount)) then
         return
     end
@@ -283,9 +260,6 @@ function transferMoney(peer_id, target_peer_id, amount)
     local payerSteam_id = getPlayerSteamId(peer_id)
     local targetSteam_id = getPlayerSteamId(target_peer_id)
     local amount = tonumber(amount)
-    if (isVarNotNil(payerSteam_id) and isVarNotNil(targetSteam_id)) then
-        return
-    end
     if (not isNumber(amount)) then
         return
     end
@@ -367,9 +341,6 @@ end
 
 function getPlayerSaveData(peer_id)
     local steam_id = getPlayerSteamId(peer_id)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     return g_savedata.playerData[steam_id]
 end
 
@@ -387,9 +358,6 @@ end
 
 function updateUIForPlayer(peer_id)
     local steam_id = getPlayerSteamId(peer_id)
-    if (isVarNotNil(steam_id)) then
-        return
-    end
     server.setPopupScreen(peer_id, g_savedata.playerData[steam_id].moneyUiId, "", true, "Balance: $" .. getMoney(peer_id)
         , 0.56, 0.88)
 end
@@ -397,8 +365,7 @@ end
 function updateUIAll()
     local player = server.getPlayers()
     for k, player in pairs(player) do
-        local peer_id = player.id
-        updateUIForPlayer(peer_id)
+        updateUIForPlayer(player.id)
     end
 end
 
