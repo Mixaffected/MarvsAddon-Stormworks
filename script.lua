@@ -365,6 +365,6 @@ end
 function updateUIAll()
     local player = server.getPlayers()
     for k, player in pairs(player) do
-        updateUIForPlayer(player.id)
+        updateUIForPlayer(tonumber(player.id))
     end
 end
