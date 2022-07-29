@@ -368,10 +368,3 @@ function updateUIAll()
         updateUIForPlayer(player.id)
     end
 end
-
-function isVarNotNil(v)
-    if (v == nil) then
-        return false
-    end
-    return true
-end
