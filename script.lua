@@ -82,7 +82,7 @@ function onPlayerJoin(steam_id, name, peer_id, admin, auth)
     end
 
     -- if new player
-    g_savedata.playerData[steam_id] = newPlayerTableData
+    g_savedata.playerData[steam_id] = table.clone(newPlayerTableData)
     g_savedata.playerData[steam_id].name = tostring(player.name)
     g_savedata.playerData[steam_id].steam_id = tostring(steam_id)
     g_savedata.playerData[steam_id].moneyUiId = ui_id
