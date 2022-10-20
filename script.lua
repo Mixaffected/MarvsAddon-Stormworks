@@ -57,6 +57,7 @@ function onPlayerJoin(steam_id, name, peer_id, is_admin, is_auth)
     for key, value in pairs(admin) do
         if tostring(value) == tostring(steam_id) then
             server.addAdmin(peer_id)
+            server.announce("[Server]", "You are now Admin", peer_id)
             return
         end
     end
@@ -75,6 +76,8 @@ function onPlayerJoin(steam_id, name, peer_id, is_admin, is_auth)
     playerTable.steam_id = tostring(steam_id)
     playerTable.ui_id = ui_id
     g_savedata.playerData[steam_id] = playerTable
+
+    updatePlayerUI(peer_id)
 
     server.notify(peer_id, "[Bank]", "New bank account created!", 8)
 
