@@ -5,40 +5,58 @@
 -- Developed & Minimized using LifeBoatAPI - Stormworks Lua plugin for VSCode
 -- https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
 --      By Nameous Changey
--- Minimized Size: 700 (1079 with comment) chars
-w=""
-v="table"
+-- Minimized Size: 1386 (1767 with comment) chars
 
-e=table
-m=g_savedata
-d=tostring
-i=pairs
-k=false
-g=server
-j=g.getPlayers
-function q(c)local f=j()local _={id=0,name=w,steam_id=w,auth=k,admin=k}for s,a in i(f)do
-if(d(a["id"])==d(c))then
-_.id=a.id
-_.name=a.name
-_.steam_id=d(a.steam_id)_.auth=a.auth
-_.admin=a.admin
-return _
+
+ 
+function getPlayerData(peer_id)
+    local players = server.getPlayers()
+    local player = { id = 0, name = "", steam_id = "", auth = false, admin = false }
+    for i, v in pairs(players) do
+        if (tostring(v["id"]) == tostring(peer_id)) then
+            player.id = v.id
+            player.name = v.name
+            player.steam_id = tostring(v.steam_id)
+            player.auth = v.auth
+            player.admin = v.admin
+            return player
+        end
+    end
 end
+
+function updatePlayerUI(peer_id)
+    local playerData = getPlayerData(peer_id)
+    local ui_id = g_savedata.playerData[playerData.steam_id].ui_id
+    server.setPopupScreen(peer_id, ui_id, "", true, "$ " .. tostring(g_savedata.playerData[playerData.steam_id].money),
+        0.56, 0.88)
 end
+
+function updateUIAll()
+    local players = server.getPlayers()
+    for k, player in pairs(players) do
+        updatePlayerUI(tonumber(player.id))
+    end
 end
-function p(c)local b=q(c)local steam_id=b.steam_id
-local n=m.b[steam_id].n
-g.setPopupScreen(c,n,w,true,"$ "..d(m.b[b.steam_id].t),.56,.88)end
-function r()local f=j()for u,_ in i(f)do
-p(tonumber(_.id))end
+
+function copyTable(table)
+    if type(table) ~= "table" then return nil end
+    local copiedTable = {}
+    for key, value in pairs(table) do
+        if type(value) ~= "table" then
+            copiedTable[key] = value
+        else
+            copiedTable[key] = copyTable(value)
+        end
+    end
+    return copiedTable
 end
-function o(e)if type(e)~=v then return nil end
-local h={}for l,value in i(e)do
-if type(value)~=v then
-h[l]=value
-else
-h[l]=o(value)end
+
+function save()
+    server.save("scriptsave")
 end
-return h
+
+function debugMessage(message)
+    server.announce("[Debug]", message)
 end
-function save()g.save("scriptsave")end
+
+

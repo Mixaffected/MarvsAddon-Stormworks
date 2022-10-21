@@ -1,83 +1,156 @@
 -- Author: !true
 -- GitHub: https://github.com/nottruenow64bit
 -- Workshop: https://steamcommunity.com/id/QuestionmarkTrue/myworkshopfiles/
---
--- Developed & Minimized using LifeBoatAPI - Stormworks Lua plugin for VSCode
--- https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
---      By Nameous Changey
--- Minimized Size: 1695 (2076 with comment) chars
-Q=""
-P="scriptsave"
-O="[Server]"
-N="table"
 
-w=nil
-q=table
-E=tonumber
-c=g_savedata
-f=tostring
-i=pairs
-B=false
-d=server
-l=d.announce
-D=d.save
-C=d.getPlayers
-function n(_)local r=C()local e={id=0,name=Q,steam_id=Q,auth=B,admin=B}for L,g in i(r)do
-if(f(g["id"])==f(_))then
-e.id=g.id
-e.name=g.name
-e.steam_id=f(g.steam_id)e.auth=g.auth
-e.admin=g.admin
-return e
+
+
+ 
+function getPlayerData(peer_id)
+    local players = server.getPlayers()
+    local player = { id = 0, name = "", steam_id = "", auth = false, admin = false }
+    for i, v in pairs(players) do
+        if (tostring(v["id"]) == tostring(peer_id)) then
+            player.id = v.id
+            player.name = v.name
+            player.steam_id = tostring(v.steam_id)
+            player.auth = v.auth
+            player.admin = v.admin
+            return player
+        end
+    end
 end
+
+function updatePlayerUI(peer_id)
+    local playerData = getPlayerData(peer_id)
+    local ui_id = g_savedata.playerData[playerData.steam_id].ui_id
+    server.setPopupScreen(peer_id, ui_id, "", true, "$ " .. tostring(g_savedata.playerData[playerData.steam_id].money),
+        0.56, 0.88)
 end
+
+function updateUIAll()
+    local players = server.getPlayers()
+    for k, player in pairs(players) do
+        updatePlayerUI(tonumber(player.id))
+    end
 end
-function o(_)local a=n(_)local steam_id=a.steam_id
-local b=c.a[steam_id].b
-d.setPopupScreen(_,b,Q,true,"$ "..f(c.a[a.steam_id].A),.56,.88)end
-function H()local r=C()for K,e in i(r)do
-o(E(e.id))end
+
+function copyTable(table)
+    if type(table) ~= "table" then return nil end
+    local copiedTable = {}
+    for key, value in pairs(table) do
+        if type(value) ~= "table" then
+            copiedTable[key] = value
+        else
+            copiedTable[key] = copyTable(value)
+        end
+    end
+    return copiedTable
 end
-function s(q)if type(q)~=N then return w end
-local m={}for p,value in i(q)do
-if type(value)~=N then
-m[p]=value
-else
-m[p]=s(value)end
+
+function save()
+    server.save("scriptsave")
 end
-return m
+
+function debugMessage(message)
+    server.announce("[Debug]", message)
 end
-function save()D(P)end
-c={M={},v={t=20000},a={}}u={name=Q,steam_id=Q,A=0,b=-1}admin={"76561198346789290","76561197976360068"}j=0
-k=0
-function onCreate(F)if F then
-c.v.t=E(property.slider("Start Money",5000,200000,5000,35000))end
-u.A=c.v.t
+
+
+
+g_savedata = {
+    vehicleData = {},
+    gameData = { startMoney = 20000 },
+    playerData = {}
+}
+
+local newPlayerDataTable = {
+    name = "",
+    steam_id = "",
+    money = 0,
+    ui_id = -1
+}
+
+
+local admin = { "76561198346789290", "76561197976360068" }
+
+ticks = 0
+uiTicks = 0
+saveTicks = 0
+
+function onCreate(is_world_create)
+    if is_world_create then
+        g_savedata.gameData.startMoney = tonumber(property.slider("Start Money", 5000, 200000, 5000, 35000))
+    end
+    newPlayerDataTable.money = g_savedata.gameData.startMoney
 end
-function onDestroy()save()end
-function onTick(J)j=j+1
-if j>=60 then
-j=0
-H()end
-k=k+1
-if k>=300 then
-k=0
-save()end
+
+function onDestroy()
+    save()
 end
-function onPlayerJoin(steam_id,name,_,G,I)local a=n(_)local steam_id=a.steam_id
-local b=d.getMapID()d.addAuth(_)l(O,name.." joined the game")for p,value in i(admin)do
-if f(value)==f(steam_id)then
-d.addAdmin(_)l(O,"You are now Admin",_)return
+
+function onTick(game_ticks)
+    ticks = ticks + 1
+
+    uiTicks = uiTicks + 1
+    if uiTicks >= 60 then
+        uiTicks = 0
+        updateUIAll()
+    end
+
+    saveTicks = saveTicks + 1
+    if saveTicks >= 18000 then
+        saveTicks = 0
+        save()
+    end
 end
+
+function onPlayerJoin(stId, name, peer_id, is_admin, is_auth)
+    local playerData = getPlayerData(peer_id)
+    local steam_id = playerData.steam_id
+    local ui_id = server.getMapID()
+
+    server.announce("[Server]", name .. " joined the game")
+
+    -- if admin
+    for key, value in pairs(admin) do
+        if tostring(value) == tostring(steam_id) then
+            server.addAdmin(peer_id)
+            server.announce("[Server]", "You are now Admin", peer_id)
+        end
+    end
+
+    -- if bank accountexists
+    if g_savedata.playerData[steam_id] ~= nil then
+        debugMessage("Exists")
+        g_savedata.playerData[steam_id].ui_id = ui_id
+        server.addAuth(peer_id)
+        updatePlayerUI(peer_id)
+        save()
+        return
+    end
+
+    -- if new player
+    local newPlayer = copyTable(newPlayerDataTable)
+    newPlayer.name = tostring(playerData.name)
+    newPlayer.steam_id = tostring(steam_id)
+    newPlayer.ui_id = ui_id
+    g_savedata.playerData[steam_id] = newPlayer
+    updatePlayerUI(peer_id)
+
+    server.notify(peer_id, "[Bank]", "New bank account created!", 8)
+    server.addAuth(peer_id)
+    save()
 end
-if c.a[steam_id]~=w then
-c.a[steam_id].b=b
-o(_)D(P)return
+
+function onPlayerLeave(steam_id, name, peer_id, is_admin, is_auth)
+    local playerData = getPlayerData(peer_id)
+    local steam_id = playerData.steam_id
+
+    server.removeMapID(peer_id, g_savedata.playerData[steam_id].ui_id)
+    g_savedata.playerData[steam_id].ui_id = -1
+
+    server.announce("[Server]", name .. " left the game")
+    save()
 end
-local h=s(u)h.name=a.name
-h.steam_id=f(steam_id)h.b=b
-c.a[steam_id]=h
-o(_)d.notify(_,"[Bank]","New bank account created!",8)save()end
-function onPlayerLeave(steam_id,name,_,G,I)local a=n(_)local steam_id=a.steam_id
-d.removeMapID(_,c.a[steam_id].b)c.a[steam_id].b=-1
-l(O,name.." left the game")save()end
+
+
