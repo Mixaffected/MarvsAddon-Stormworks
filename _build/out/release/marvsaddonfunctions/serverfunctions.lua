@@ -9,36 +9,36 @@
 w=""
 v="table"
 
-f=table
-j=g_savedata
-c=tostring
-g=pairs
-n=false
-h=server
-l=h.getPlayers
-function p(d)local i=l()local _={id=0,name=w,steam_id=w,auth=n,admin=n}for u,a in g(i)do
-if(c(a["id"])==c(d))then
+e=table
+m=g_savedata
+d=tostring
+i=pairs
+k=false
+g=server
+j=g.getPlayers
+function q(c)local f=j()local _={id=0,name=w,steam_id=w,auth=k,admin=k}for s,a in i(f)do
+if(d(a["id"])==d(c))then
 _.id=a.id
 _.name=a.name
-_.steam_id=c(a.steam_id)_.auth=a.auth
+_.steam_id=d(a.steam_id)_.auth=a.auth
 _.admin=a.admin
 return _
 end
 end
 end
-function o(d)local b=p(d)local steam_id=b.steam_id
-local k=j.b[steam_id].k
-h.setPopupScreen(d,k,w,true,"$ "..c(j.b[b.steam_id].t),.56,.88)end
-function s()local i=l()for r,_ in g(i)do
-o(tonumber(_.id))end
+function p(c)local b=q(c)local steam_id=b.steam_id
+local n=m.b[steam_id].n
+g.setPopupScreen(c,n,w,true,"$ "..d(m.b[b.steam_id].t),.56,.88)end
+function r()local f=j()for u,_ in i(f)do
+p(tonumber(_.id))end
 end
-function q(f)if type(f)~=v then return nil end
-local e={}for m,value in g(f)do
+function o(e)if type(e)~=v then return nil end
+local h={}for l,value in i(e)do
 if type(value)~=v then
-e[m]=value
+h[l]=value
 else
-e[m]=q(value)end
+h[l]=o(value)end
 end
-return e
+return h
 end
-function save()h.save("scriptsave")end
+function save()g.save("scriptsave")end

@@ -7,22 +7,22 @@
 --      By Nameous Changey
 -- Minimized Size: 1695 (2076 with comment) chars
 Q=""
-P="table"
+P="scriptsave"
 O="[Server]"
-N="scriptsave"
+N="table"
 
-t=nil
-l=table
-s=tonumber
+w=nil
+q=table
+E=tonumber
 c=g_savedata
 f=tostring
-h=pairs
-A=false
+i=pairs
+B=false
 d=server
-m=d.announce
+l=d.announce
 D=d.save
-v=d.getPlayers
-function o(_)local p=v()local e={id=0,name=Q,steam_id=Q,auth=A,admin=A}for K,g in h(p)do
+C=d.getPlayers
+function n(_)local r=C()local e={id=0,name=Q,steam_id=Q,auth=B,admin=B}for L,g in i(r)do
 if(f(g["id"])==f(_))then
 e.id=g.id
 e.name=g.name
@@ -32,52 +32,52 @@ return e
 end
 end
 end
-function q(_)local a=o(_)local steam_id=a.steam_id
+function o(_)local a=n(_)local steam_id=a.steam_id
 local b=c.a[steam_id].b
-d.setPopupScreen(_,b,Q,true,"$ "..f(c.a[a.steam_id].E),.56,.88)end
-function I()local p=v()for J,e in h(p)do
-q(s(e.id))end
+d.setPopupScreen(_,b,Q,true,"$ "..f(c.a[a.steam_id].A),.56,.88)end
+function H()local r=C()for K,e in i(r)do
+o(E(e.id))end
 end
-function C(l)if type(l)~=P then return t end
-local n={}for r,value in h(l)do
-if type(value)~=P then
-n[r]=value
+function s(q)if type(q)~=N then return w end
+local m={}for p,value in i(q)do
+if type(value)~=N then
+m[p]=value
 else
-n[r]=C(value)end
+m[p]=s(value)end
 end
-return n
+return m
 end
-function save()D(N)end
-c={M={},u={w=20000},a={}}B={name=Q,steam_id=Q,E=0,b=-1}admin={"76561198346789290","76561197976360068"}i=0
+function save()D(P)end
+c={M={},v={t=20000},a={}}u={name=Q,steam_id=Q,A=0,b=-1}admin={"76561198346789290","76561197976360068"}j=0
 k=0
-function onCreate(G)if G then
-c.u.w=s(property.slider("Start Money",5000,200000,5000,35000))end
-B.E=c.u.w
+function onCreate(F)if F then
+c.v.t=E(property.slider("Start Money",5000,200000,5000,35000))end
+u.A=c.v.t
 end
 function onDestroy()save()end
-function onTick(L)i=i+1
-if i>=60 then
-i=0
-I()end
+function onTick(J)j=j+1
+if j>=60 then
+j=0
+H()end
 k=k+1
 if k>=300 then
 k=0
 save()end
 end
-function onPlayerJoin(steam_id,name,_,F,H)local a=o(_)local steam_id=a.steam_id
-local b=d.getMapID()d.addAuth(_)m(O,name.." joined the game")for r,value in h(admin)do
+function onPlayerJoin(steam_id,name,_,G,I)local a=n(_)local steam_id=a.steam_id
+local b=d.getMapID()d.addAuth(_)l(O,name.." joined the game")for p,value in i(admin)do
 if f(value)==f(steam_id)then
-d.addAdmin(_)m(O,"You are now Admin",_)return
+d.addAdmin(_)l(O,"You are now Admin",_)return
 end
 end
-if c.a[steam_id]~=t then
+if c.a[steam_id]~=w then
 c.a[steam_id].b=b
-q(_)D(N)return
+o(_)D(P)return
 end
-local j=C(B)j.name=a.name
-j.steam_id=f(steam_id)j.b=b
-c.a[steam_id]=j
-q(_)d.notify(_,"[Bank]","New bank account created!",8)save()end
-function onPlayerLeave(steam_id,name,_,F,H)local a=o(_)local steam_id=a.steam_id
+local h=s(u)h.name=a.name
+h.steam_id=f(steam_id)h.b=b
+c.a[steam_id]=h
+o(_)d.notify(_,"[Bank]","New bank account created!",8)save()end
+function onPlayerLeave(steam_id,name,_,G,I)local a=n(_)local steam_id=a.steam_id
 d.removeMapID(_,c.a[steam_id].b)c.a[steam_id].b=-1
-m(O,name.." left the game")save()end
+l(O,name.." left the game")save()end
