@@ -15,8 +15,7 @@ end
 
 function updatePlayerUI(peer_id)
     local playerData = getPlayerData(peer_id)
-    local steam_id = playerData.steam_id
-    local ui_id = g_savedata.playerData[steam_id].ui_id
+    local ui_id = g_savedata.playerData[playerData.steam_id].ui_id
     server.setPopupScreen(peer_id, ui_id, "", true, "$ " .. tostring(g_savedata.playerData[playerData.steam_id].money),
         0.56, 0.88)
 end
@@ -43,4 +42,8 @@ end
 
 function save()
     server.save("scriptsave")
+end
+
+function debugMessage(message)
+    server.announce("[Debug]", message)
 end
