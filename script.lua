@@ -1,11 +1,11 @@
-require("MarvsAddonFunctions.commandFunctions")
 require("MarvsAddonFunctions.serverFunctions")
+require("MarvsAddonFunctions.commandFunctions")
 
 g_savedata = {
     playerVehicleData = {},
     gameData = { startMoney = 20000 },
     playerData = {}
-} 
+}
 
 newPlayerDataTable = {
     name = "",
