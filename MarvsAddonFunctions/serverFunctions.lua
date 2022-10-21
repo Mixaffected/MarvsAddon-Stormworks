@@ -15,7 +15,8 @@ end
 
 function updatePlayerUI(peer_id)
     local playerData = getPlayerData(peer_id)
-    local ui_id = g_savedata.playerData[playerData.steam_id].ui_id
+    local steam_id = playerData.steam_id
+    local ui_id = g_savedata.playerData[steam_id].ui_id
     server.setPopupScreen(peer_id, ui_id, "", true, "$ " .. tostring(g_savedata.playerData[playerData.steam_id].money),
         0.56, 0.88)
 end
@@ -27,24 +28,17 @@ function updateUIAll()
     end
 end
 
-function copyTable(table, seen)
-    if type(table) ~= "table" then
-        return
+function copyTable(table)
+    if type(table) ~= "table" then return nil end
+    local copiedTable = {}
+    for key, value in pairs(table) do
+        if type(value) ~= "table" then
+            copiedTable[key] = value
+        else
+            copiedTable[key] = copyTable(value)
+        end
     end
-    if seen and seen[table] then
-        return seen[table]
-    end
-
-    local s = {}
-    local res = setmetatable({}, getmetatable(table))
-
-    s[table] = res
-
-    for k, v in pairs(table) do
-        res[copyTable(k, s)] = copyTable(v, s)
-    end
-
-    return res
+    return copiedTable
 end
 
 function save()
