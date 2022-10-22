@@ -1,0 +1,4 @@
+0 All went good
+1 Bank account not found
+2 Not egnough money
+10 Something went wrong
