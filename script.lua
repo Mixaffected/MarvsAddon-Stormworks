@@ -1,6 +1,3 @@
-require("MarvsAddonFunctions.serverFunctions")
-require("MarvsAddonFunctions.moneyFunctions")
-
 g_savedata = {
     vehicleData = {},
     gameData = { startMoney = 20000 },
@@ -122,3 +119,6 @@ end
 
 -- onCustomCommand
 require("commands")
+
+require("MarvsAddonFunctions.serverFunctions")
+require("MarvsAddonFunctions.moneyFunctions")

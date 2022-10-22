@@ -64,7 +64,7 @@ function debugMessage(message)
 end
 
 function roundToTwoDecimalPlaces(value)
-    return string.format("%.2f", value)
+    return string.format("%.2f", tonumber(value))
 end
 
 function hasBankAccount(peer_id)

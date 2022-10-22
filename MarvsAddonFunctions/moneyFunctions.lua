@@ -1,12 +1,13 @@
 -- get money from peerID rounded
 function getMoney(peer_id)
     local player = getPlayerData(peer_id)
-    return roundToTwoDecimalPlaces(g_savedata.playerData[player.steam_id].money)
+    return tonumber(roundToTwoDecimalPlaces(g_savedata.playerData[player.steam_id].money))
 end
 
 -- add money to an bank account
 function addMoney(peer_id, amount)
     local player = getPlayerData(peer_id)
+    local amount = tonumber(amount)
 
     if not hasBankAccount(peer_id) then return 1 end
 
@@ -25,6 +26,7 @@ end
 -- remove money from an bank account
 function removeMoney(peer_id, amount)
     local player = getPlayerData(peer_id)
+    local amount = tonumber(amount)
 
     if not hasBankAccount(peer_id) then return 1 end
 
