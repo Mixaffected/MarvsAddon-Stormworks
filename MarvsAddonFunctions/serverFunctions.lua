@@ -13,10 +13,25 @@ function getPlayerData(peer_id)
     end
 end
 
+function getAllPlayer()
+    local players = server.getPlayers()
+    local allPlayers = {}
+    local player = { id = 0, name = "", steam_id = "", auth = false, admin = false }
+    for key, value in pairs(players) do
+        player.id = value.id
+        player.name = value.name
+        player.steam_id = tostring(value.steam_id)
+        player.auth = value.auth
+        player.admin = value.admin
+        table.insert(allPlayers, copyTable(player))
+    end
+    return allPlayers
+end
+
 function updatePlayerUI(peer_id)
     local playerData = getPlayerData(peer_id)
     local ui_id = g_savedata.playerData[playerData.steam_id].ui_id
-    server.setPopupScreen(peer_id, ui_id, "", true, "$ " .. tostring(g_savedata.playerData[playerData.steam_id].money),
+    server.setPopupScreen(peer_id, ui_id, "", true, "$ " .. getMoney(peer_id),
         0.56, 0.88)
 end
 
@@ -46,4 +61,17 @@ end
 
 function debugMessage(message)
     server.announce("[Debug]", message)
+end
+
+function roundToTwoDecimalPlaces(value)
+    return string.format("%.2f", value)
+end
+
+function hasBankAccount(peer_id)
+    local playerData = getPlayerData(peer_id)
+    if g_savedata.playerData[playerData.steam_id] ~= nil then
+        return true
+    else
+        return false
+    end
 end
