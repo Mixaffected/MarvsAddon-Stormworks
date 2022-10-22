@@ -1,5 +1,5 @@
 require("MarvsAddonFunctions.serverFunctions")
-require("MarvsAddonFunctions.commandFunctions")
+require("MarvsAddonFunctions.moneyFunctions")
 
 g_savedata = {
     vehicleData = {},
@@ -19,7 +19,6 @@ local admin = { "76561198346789290", "76561197976360068" }
 
 ingameTime = { ticks = 0, minutes = 0, hour = 0, day = 0, week = 0, month = 0, jear = 0 }
 timeCalcs = { uiTicks = 0, saveTicks = 0 }
-
 
 
 function onCreate(is_world_create)
@@ -60,13 +59,13 @@ function onTick(game_ticks)
         ingameTime.jear = ingameTime.minutes + 1
     end
 
-    timeCalcs.uiTicks = uiTicks + 1
+    timeCalcs.uiTicks = timeCalcs.uiTicks + 1
     if timeCalcs.uiTicks >= 60 then
         timeCalcs.uiTicks = 0
         updateUIAll()
     end
 
-    timeCalcs.saveTicks = saveTicks + 1
+    timeCalcs.saveTicks = timeCalcs.saveTicks + 1
     if timeCalcs.saveTicks >= 18000 then
         timeCalcs.saveTicks = 0
         save()
@@ -120,3 +119,6 @@ function onPlayerLeave(steam_id, name, peer_id, is_admin, is_auth)
     server.announce("[Server]", name .. " left the game")
     save()
 end
+
+-- onCustomCommand
+require("commands")
