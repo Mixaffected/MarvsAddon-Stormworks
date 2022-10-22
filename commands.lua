@@ -50,8 +50,23 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
             server.notify(peer_id, "[Bank]", "You added $ " .. amount .. " to " .. creditorData.name .. " bank account."
                 , 8)
             server.notify(creditorPeerId, "[Bank]", "You got $ " .. amount .. "!", 8)
+        elseif returnCode == 1 then
+            server.notify(peer_id, "[Bank]", creditorData.name .. " has no bank account!", 8)
         end
     end
 
+    if command == "?removemoney" or "?removem" or "?remmoney" or "?rm" and is_admin then
+        local debitorPeerId = tonumber(one)
+        local debitorData = getPlayerData(debitorPeerId)
+        local amount = roundToTwoDecimalPlaces(tonumber(two))
+        local returnCode = addMoney(debitorPeerId, amount)
 
+        if returnCode == 0 then
+            server.notify(peer_id, "[Bank]", "You added $ " .. amount .. " to " .. debitorData.name .. " bank account."
+                , 8)
+            server.notify(debitorData, "[Bank]", "You got $ " .. amount .. "!", 8)
+        elseif returnCode == 1 then
+            server.notify(peer_id, "[Bank]", debitorData.name .. " has no bank account!", 8)
+        end
+    end
 end
