@@ -22,6 +22,13 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         -- send money to someone
     elseif command == "?sendmoney" or command == "?sendm" then
         debugMessage("In sendmoney")
+
+        if not isStrNumber(one) and not isStrNumber(two) then
+            debugMessage("Bad Argument")
+            server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
+            return
+        end
+
         local creditorPeerId = tonumber(one)
         local amount = roundToTwoDecimalPlaces(two)
         local debtorData = playerData
@@ -43,6 +50,13 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
     -- add money to bank account
     if command == "?addmoney" or command == "?addm" or command == "?am" and is_admin then
         debugMessage("In addm")
+
+        if not isStrNumber(one) and not isStrNumber(two) then
+            debugMessage("Bad Argument")
+            server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
+            return
+        end
+
         local creditorPeerId = tonumber(one)
         local creditorData = getPlayerData(creditorPeerId)
         local amount = roundToTwoDecimalPlaces(two)
@@ -61,6 +75,13 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         -- remove money from bank account
     elseif command == "?removemoney" or command == "?remm" or command == "?rm" and is_admin then
         debugMessage("In remm")
+
+        if not isStrNumber(one) and not isStrNumber(two) then
+            debugMessage("Bad Argument")
+            server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
+            return
+        end
+
         local debitorPeerId = tonumber(one)
         local debitorData = getPlayerData(debitorPeerId)
         local amount = roundToTwoDecimalPlaces(two)
