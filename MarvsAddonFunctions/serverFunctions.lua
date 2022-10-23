@@ -86,3 +86,10 @@ function hasBankAccount(peer_id)
         return false
     end
 end
+
+function isStrNumber(string)
+    if tonumber(string) ~= nil then
+        return true
+    end
+    return false
+end
