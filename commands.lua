@@ -20,10 +20,10 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         server.notify(peer_id, "[Bank]", "Your balance is $ " .. tostring(getMoney(peer_id)), 8)
 
         -- send money to someone
-    elseif command == "?sendmoney" or command == "?sm" then
+    elseif command == "?sendmoney" or command == "?sendm" then
         debugMessage("In sendmoney")
         local creditorPeerId = tonumber(one)
-        local amount = tonumber(roundToTwoDecimalPlaces(two))
+        local amount = roundToTwoDecimalPlaces(two)
         local debtorData = playerData
         local creditorData = getPlayerData(peer_id)
 
@@ -45,7 +45,8 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         debugMessage("In addm")
         local creditorPeerId = tonumber(one)
         local creditorData = getPlayerData(creditorPeerId)
-        local amount = tonumber(roundToTwoDecimalPlaces(two))
+        local amount = roundToTwoDecimalPlaces(two)
+
         local returnCode = addMoney(creditorPeerId, amount)
 
         if returnCode == 0 then
@@ -57,11 +58,12 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
             server.notify(peer_id, "[Bank]", creditorData.name .. " has no bank account!", 8)
         end
 
-    elseif command == "?removemoney" or command == "?remmo" or command == "?rm" and is_admin then
+        -- remove money from bank account
+    elseif command == "?removemoney" or command == "?remm" or command == "?rm" and is_admin then
         debugMessage("In remm")
         local debitorPeerId = tonumber(one)
         local debitorData = getPlayerData(debitorPeerId)
-        local amount = tonumber(roundToTwoDecimalPlaces(two))
+        local amount = roundToTwoDecimalPlaces(two)
         local returnCode = removeMoney(debitorPeerId, amount)
 
         if returnCode == 0 then

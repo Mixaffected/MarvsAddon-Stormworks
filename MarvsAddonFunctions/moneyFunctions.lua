@@ -1,7 +1,7 @@
 -- get money from peerID rounded
 function getMoney(peer_id)
     local player = getPlayerData(peer_id)
-    return tonumber(roundToTwoDecimalPlaces(g_savedata.playerData[player.steam_id].money))
+    return roundToTwoDecimalPlaces(g_savedata.playerData[player.steam_id].money)
 end
 
 -- add money to an bank account
@@ -45,7 +45,7 @@ function removeMoney(peer_id, amount)
     return 10
 end
 
--- transfers money between two bank accounts
+-- transfer money between two bank accounts
 function transferMoney(debtorPeerId, creditorPeerId, amount)
     local debtorData = getPlayerData(debtorPeerId)
     local creditorData = getPlayerData(creditorPeerId)

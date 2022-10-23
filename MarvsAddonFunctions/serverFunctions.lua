@@ -1,3 +1,4 @@
+-- get all player data about one player
 function getPlayerData(peer_id)
     local players = server.getPlayers()
     local player = { id = 0, name = "", steam_id = "", auth = false, admin = false }
@@ -13,6 +14,7 @@ function getPlayerData(peer_id)
     end
 end
 
+-- get table from every player
 function getAllPlayer()
     local players = server.getPlayers()
     local allPlayers = {}
@@ -28,20 +30,23 @@ function getAllPlayer()
     return allPlayers
 end
 
-function updatePlayerUI(peer_id)
+-- update UI for one player
+function updatePlayerBalanceUI(peer_id)
     local playerData = getPlayerData(peer_id)
     local ui_id = g_savedata.playerData[playerData.steam_id].ui_id
     server.setPopupScreen(peer_id, ui_id, "", true, "$ " .. getMoney(peer_id),
         0.56, 0.88)
 end
 
-function updateUIAll()
+-- update balance UI for every player
+function updateBalanceUIAll()
     local players = server.getPlayers()
     for k, player in pairs(players) do
-        updatePlayerUI(tonumber(player.id))
+        updatePlayerBalanceUI(tonumber(player.id))
     end
 end
 
+-- copy a table and all its child tables
 function copyTable(table)
     if type(table) ~= "table" then return nil end
     local copiedTable = {}
@@ -55,18 +60,24 @@ function copyTable(table)
     return copiedTable
 end
 
-function save()
-    server.save("scriptsave")
+-- save game default "scriptsave" but also custom ones
+function save(saveName)
+    local saveName = saveName or "scriptsave"
+    server.save(saveName)
 end
 
+-- send debug Message
 function debugMessage(message)
+    if not debug then return end
     server.announce("[Debug]", message)
 end
 
+-- round to two decimal places returns number
 function roundToTwoDecimalPlaces(value)
-    return string.format("%.2f", tonumber(value))
+    return tonumber(string.format("%.2f", tonumber(value)))
 end
 
+-- return bool if player has an bank account
 function hasBankAccount(peer_id)
     local playerData = getPlayerData(peer_id)
     if g_savedata.playerData[playerData.steam_id] ~= nil then
