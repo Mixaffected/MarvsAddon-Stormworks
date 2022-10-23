@@ -24,11 +24,13 @@ function addMoney(peer_id, amount)
 end
 
 -- remove money from an bank account
-function removeMoney(peer_id, amount)
+function removeMoney(peer_id, amount, respectMoneyLimit)
     local player = getPlayerData(peer_id)
     local amount = tonumber(amount)
+    local respectMoneyLimit = respectMoneyLimit or false
 
     if not hasBankAccount(peer_id) then return 1 end
+    if getMoney(peer_id) >= amount and respectMoneyLimit then return 2 end
 
     local balPlayer = getMoney(peer_id)
 
@@ -51,6 +53,7 @@ function transferMoney(debtorPeerId, creditorPeerId, amount)
     local creditorData = getPlayerData(creditorPeerId)
     local balDebitor = g_savedata.playerData[debtorData.steam_id].money
     local balCreditor = g_savedata.playerData[creditorData.steam_id].money
+    local amount = tonumber(amount)
 
     if g_savedata.playerData[debtorData.steam_id].money < amount then
         server.notify(debtorPeerId, "[Bank]", "Your order has been canceled due to insufficient funds.", 8)
@@ -60,7 +63,16 @@ function transferMoney(debtorPeerId, creditorPeerId, amount)
         return 1
     end
 
-    if removeMoney(debtorPeerId, amount) == 0 and addMoney(creditorPeerId, amount) == 0 then
-        return 0
+    local returnCodeDebitor = removeMoney(debtorPeerId, amount, true)
+    local returnCodeCreditor = 10
+    if returnCodeDebitor == 0 then
+        local returnCodeCreditor = addMoney(creditorPeerId, amount)
+        if returnCodeCreditor == 0 then
+            return 0
+        end
+    end
+
+    if returnCodeDebitor == 0 and returnCodeCreditor ~= 0 then
+        return addMoney(debtorPeerId, amount)
     end
 end
