@@ -23,13 +23,20 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
     elseif command == "?sendmoney" or command == "?sendm" then
         debugMessage("In sendmoney")
 
-        if not isStrNumber(one) and not isStrNumber(two) then
+        if not isStrNumber(one) or not isStrNumber(two) then
             debugMessage("Bad Argument")
             server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
             return
         end
 
         local creditorPeerId = tonumber(one)
+
+        if not isPeerIdExisting(creditorPeerId) then
+            debugMessage("PeerID not existent")
+            server.announce("[Bank]", "Bad PeerID! Please enter an existing one.", peer_id)
+            return
+        end
+
         local amount = roundToTwoDecimalPlaces(two)
         local debtorData = playerData
         local creditorData = getPlayerData(peer_id)
@@ -51,13 +58,20 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
     if command == "?setmoney" or command == "?setm" or command == "?sm" and is_admin then
         debugMessage("In setmoney")
 
-        if not isStrNumber(one) and isStrNumber(two) then
+        if not isStrNumber(one) or not isStrNumber(two) then
             debugMessage("Bad Argument")
             server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
         local playerPeerID = tonumber(one)
+
+        if not isPeerIdExisting(playerPeerID) then
+            debugMessage("PeerID not existent")
+            server.announce("[Bank]", "Bad PeerID! Please enter an existing one.", peer_id)
+            return
+        end
+
         local amount = roundToTwoDecimalPlaces(two)
 
         local returnCode = setMoney(playerPeerID, amount)
@@ -74,13 +88,20 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
     elseif command == "?addmoney" or command == "?addm" or command == "?am" and is_admin then
         debugMessage("In addmoney")
 
-        if not isStrNumber(one) and not isStrNumber(two) then
+        if not isStrNumber(one) or not isStrNumber(two) then
             debugMessage("Bad Argument")
             server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
         local creditorPeerId = tonumber(one)
+
+        if not isPeerIdExisting(creditorPeerId) then
+            debugMessage("PeerID not existent")
+            server.announce("[Bank]", "Bad PeerID! Please enter an existing one.", peer_id)
+            return
+        end
+
         local creditorData = getPlayerData(creditorPeerId)
         local amount = roundToTwoDecimalPlaces(two)
 
@@ -99,17 +120,24 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
     elseif command == "?removemoney" or command == "?removem" or command == "?remm" or command == "?rm" and is_admin then
         debugMessage("In removemoney")
 
-        if not isStrNumber(one) and not isStrNumber(two) then
+        if not isStrNumber(one) or not isStrNumber(two) then
             debugMessage("Bad Argument")
             server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
         local debitorPeerId = tonumber(one)
+
+        if not isPeerIdExisting(debitorPeerId) then
+            debugMessage("PeerID not existent")
+            server.announce("[Bank]", "Bad PeerID! Please enter an existing one.", peer_id)
+            return
+        end
+
         local debitorData = getPlayerData(debitorPeerId)
         local amount = roundToTwoDecimalPlaces(two)
 
-        if getMoney(debitorPeerId) >= amount then return 2 end
+        if getMoney(debitorPeerId) < amount then return 2 end
         local returnCode = removeMoney(debitorPeerId, amount)
 
         if returnCode == 0 then
@@ -126,15 +154,22 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         command == "?tm" and is_admin then
         debugMessage("In transfermoney")
 
-        if not isStrNumber(one) and not isStrNumber(two) and not isStrNumber(three) then
+        if not isStrNumber(one) or not isStrNumber(two) or not isStrNumber(three) then
             debugMessage("Bad Argument")
             server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
         local debitorPeerId = tonumber(two)
-        local debitorName = getPlayerData(debitorPeerId).name
         local creditorPeerId = tonumber(one)
+
+        if not isPeerIdExisting(debitorPeerId) or not isPeerIdExisting(creditorPeerId) then
+            debugMessage("PeerID not existent")
+            server.announce("[Bank]", "Bad PeerID! Please enter an existing one.", peer_id)
+            return
+        end
+
+        local debitorName = getPlayerData(debitorPeerId).name
         local creditorName = getPlayerData(creditorPeerId).name
         local amount = roundToTwoDecimalPlaces(three)
 

@@ -30,6 +30,18 @@ function getAllPlayer()
     return allPlayers
 end
 
+-- returns a bool when the peer id exists
+function isPeerIdExisting(peer_id)
+    local playerData = server.getPlayers()
+
+    for k, v in pairs(playerData) do
+        if tonumber(k) == tonumber(peer_id) then
+            return true
+        end
+    end
+    return false
+end
+
 -- update UI for one player
 function updatePlayerBalanceUI(peer_id)
     local playerData = getPlayerData(peer_id)
@@ -89,10 +101,11 @@ end
 
 -- true if is a string when converted a number
 function isStrNumber(string)
-    if tonumber(string) ~= nil then
+    if type(tonumber(string)) == "number" then
         return true
+    else
+        return false
     end
-    return false
 end
 
 -- notifies that something got wrong
