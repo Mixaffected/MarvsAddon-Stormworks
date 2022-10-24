@@ -1,9 +1,3 @@
--- Author: !true
--- GitHub: https://github.com/nottruenow64bit
--- Workshop: https://steamcommunity.com/id/QuestionmarkTrue/myworkshopfiles/
-
-
-
  
 g_savedata = {
     vehicleData = {},
@@ -147,7 +141,7 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
 
         -- other way to see current balance
     elseif command == "?money" or command == "?balance" or command == "?bal" then
-        debugMessage("In bal")
+        debugMessage("In balance")
         if g_savedata.playerData[steam_id] == nil then
             server.notify(peer_id, "[Bank]", "You dont have a bank account! Please rejoin the server!", 9)
             return
@@ -184,11 +178,11 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
 
     -- add money to bank account
     if command == "?addmoney" or command == "?addm" or command == "?am" and is_admin then
-        debugMessage("In addm")
+        debugMessage("In addmoney")
 
         if not isStrNumber(one) and not isStrNumber(two) then
             debugMessage("Bad Argument")
-            server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
+            server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
@@ -209,26 +203,52 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
 
         -- remove money from bank account
     elseif command == "?removemoney" or command == "?remm" or command == "?rm" and is_admin then
-        debugMessage("In remm")
+        debugMessage("In removemoney")
 
         if not isStrNumber(one) and not isStrNumber(two) then
             debugMessage("Bad Argument")
-            server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
+            server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
         local debitorPeerId = tonumber(one)
         local debitorData = getPlayerData(debitorPeerId)
         local amount = roundToTwoDecimalPlaces(two)
+
+        if getMoney(debitorPeerId) >= amount then return 2 end
         local returnCode = removeMoney(debitorPeerId, amount)
 
         if returnCode == 0 then
             server.notify(peer_id, "[Bank]",
                 "You removed $ " .. tostring(amount) .. " from " .. debitorData.name .. " bank account."
                 , 8)
-            server.notify(debitorData, "[Bank]", "You lost $ " .. tostring(amount) .. "!", 8)
+            server.notify(debitorPeerId, "[Bank]", "You lost $ " .. tostring(amount) .. "!", 8)
         elseif returnCode == 1 then
             server.notify(peer_id, "[Bank]", debitorData.name .. " has no bank account!", 8)
+        end
+
+        -- transfer money from one user to another
+    elseif command == "?transfermoney" then
+        debugMessage("In transfermoney")
+
+        if not isStrNumber(one) and not isStrNumber(two) and not isStrNumber(three) then
+            debugMessage("Bad Argument")
+            server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
+            return
+        end
+
+        local debitorPeerId = tonumber(two)
+        local debitorName = getPlayerData(debitorPeerId).name
+        local creditorPeerId = tonumber(one)
+        local creditorName = getPlayerData(creditorPeerId).name
+        local amount = roundToTwoDecimalPlaces(three)
+
+        local returnCode = transferMoney(debitorPeerId, creditorPeerId, amount)
+        if returnCode == 0 then
+            server.notify(peer_id, "[Bank]",
+                "Transfer successful! Money transfered from " .. debitorName .. " to " .. creditorName .. ".", 8)
+            server.notify(debitorPeerId, "[Bank]", "You lost $ " .. amount .. "!", 8)
+            server.notify(creditorName, "[Bank]", "You got $ " .. amount .. "!", 8)
         end
     end
 end
@@ -337,6 +357,28 @@ function getMoney(peer_id)
     return roundToTwoDecimalPlaces(g_savedata.playerData[player.steam_id].money)
 end
 
+-- set money to the amount
+function setMoney(peer_id, amount)
+    local playerData = getPlayerData(peer_id)
+
+    if not hasBankAccount(peer_id) then return 1 end
+
+    local moneyBefore = getMoney(peer_id)
+
+    -- if smaller than 0 than set zero
+    if moneyBefore - roundToTwoDecimalPlaces(amount) <= 0 then
+        amount = 0
+    end
+
+    g_savedata.playerData[playerData.steam_id].money = roundToTwoDecimalPlaces(amount)
+    if getMoney(peer_id) == roundToTwoDecimalPlaces(amount) then
+        return 0
+    else
+        g_savedata.playerData[playerData.steam_id].money = moneyBefore
+        return 10
+    end
+end
+
 -- add money to an bank account
 function addMoney(peer_id, amount)
     local player = getPlayerData(peer_id)
@@ -357,11 +399,13 @@ function addMoney(peer_id, amount)
 end
 
 -- remove money from an bank account
-function removeMoney(peer_id, amount)
+function removeMoney(peer_id, amount, respectMoneyLimit)
     local player = getPlayerData(peer_id)
     local amount = tonumber(amount)
+    local respectMoneyLimit = respectMoneyLimit or false
 
     if not hasBankAccount(peer_id) then return 1 end
+    if getMoney(peer_id) >= amount and respectMoneyLimit then return 2 end
 
     local balPlayer = getMoney(peer_id)
 
@@ -382,8 +426,9 @@ end
 function transferMoney(debtorPeerId, creditorPeerId, amount)
     local debtorData = getPlayerData(debtorPeerId)
     local creditorData = getPlayerData(creditorPeerId)
-    local balDebitor = g_savedata.playerData[debtorData.steam_id].money
-    local balCreditor = g_savedata.playerData[creditorData.steam_id].money
+    local balDebitor = getMoney(debtorPeerId)
+    local balCreditor = getMoney(creditorPeerId)
+    local amount = roundToTwoDecimalPlaces(amount)
 
     if g_savedata.playerData[debtorData.steam_id].money < amount then
         server.notify(debtorPeerId, "[Bank]", "Your order has been canceled due to insufficient funds.", 8)
@@ -393,8 +438,19 @@ function transferMoney(debtorPeerId, creditorPeerId, amount)
         return 1
     end
 
-    if removeMoney(debtorPeerId, amount) == 0 and addMoney(creditorPeerId, amount) == 0 then
-        return 0
+    local returnCodeDebitor = removeMoney(debtorPeerId, amount, true)
+    local returnCodeCreditor = 10
+    if returnCodeDebitor == 0 and balDebitor - amount == getMoney(debtorPeerId) then
+        local returnCodeCreditor = addMoney(creditorPeerId, amount)
+        if returnCodeCreditor == 0 and balCreditor + amount == getMoney(creditorPeerId) then
+            return 0
+        else
+            setMoney(creditorPeerId, balCreditor)
+            return 10
+        end
+    else
+        setMoney(debtorPeerId, balDebitor)
+        return 10
     end
 end
 
