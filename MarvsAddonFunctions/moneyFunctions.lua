@@ -12,12 +12,11 @@ function setMoney(peer_id, amount)
 
     local moneyBefore = getMoney(peer_id)
 
-    -- if smaller than 0 than set zero
-    if moneyBefore - roundToTwoDecimalPlaces(amount) <= 0 then
-        amount = 0
+    g_savedata.playerData[playerData.steam_id].money = roundToTwoDecimalPlaces(amount)
+    if getMoney(peer_id) <= 0 then
+        g_savedata.playerData[playerData.steam_id].money = 0
     end
 
-    g_savedata.playerData[playerData.steam_id].money = roundToTwoDecimalPlaces(amount)
     if getMoney(peer_id) == roundToTwoDecimalPlaces(amount) then
         return 0
     else
