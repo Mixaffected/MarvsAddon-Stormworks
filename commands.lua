@@ -96,7 +96,7 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         end
 
         -- remove money from bank account
-    elseif command == "?removemoney" or command == "?remm" or command == "?rm" and is_admin then
+    elseif command == "?removemoney" or command == "?removem" or command == "?remm" or command == "?rm" and is_admin then
         debugMessage("In removemoney")
 
         if not isStrNumber(one) and not isStrNumber(two) then
