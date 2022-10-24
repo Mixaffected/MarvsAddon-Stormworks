@@ -66,10 +66,8 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
             server.notify(peer_id, "[bank]",
                 "Balance from " .. getPlayerData(playerPeerID).name .. " set to $ " .. amount .. ".", 8)
             server.notify(playerPeerID, "[Bank]", "Your balance was set to $ " .. amount, 8)
-        elseif returnCode == 1 then
-            --[[
-                do more feedback
-            ]]
+        else
+            returnCodesMessage(peer_id, returnCode, "[Bank]")
         end
 
         -- add money to bank account
@@ -93,8 +91,8 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
                 "You added $ " .. tostring(amount) .. " to " .. creditorData.name .. " bank account."
                 , 8)
             server.notify(creditorPeerId, "[Bank]", "You got $ " .. tostring(amount) .. "!", 8)
-        elseif returnCode == 1 then
-            server.notify(peer_id, "[Bank]", creditorData.name .. " has no bank account!", 8)
+        else
+            returnCodesMessage(peer_id, returnCode, "[Bank]")
         end
 
         -- remove money from bank account
@@ -119,8 +117,8 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
                 "You removed $ " .. tostring(amount) .. " from " .. debitorData.name .. " bank account."
                 , 8)
             server.notify(debitorPeerId, "[Bank]", "You lost $ " .. tostring(amount) .. "!", 8)
-        elseif returnCode == 1 then
-            server.notify(peer_id, "[Bank]", debitorData.name .. " has no bank account!", 8)
+        else
+            returnCodesMessage(peer_id, returnCode, "[Bank]")
         end
 
         -- transfer money from one user to another
@@ -146,6 +144,8 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
                 "Transfer successful! Money transfered from " .. debitorName .. " to " .. creditorName .. ".", 8)
             server.notify(debitorPeerId, "[Bank]", "You lost $ " .. amount .. "!", 8)
             server.notify(creditorName, "[Bank]", "You got $ " .. amount .. "!", 8)
+        else
+            returnCodesMessage(peer_id, returnCode, "[Bank]")
         end
     end
 end
