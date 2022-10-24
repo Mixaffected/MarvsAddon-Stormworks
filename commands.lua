@@ -47,13 +47,38 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
     -- this lets no not admin trough
     if not is_admin then return end
 
-    -- add money to bank account
-    if command == "?addmoney" or command == "?addm" or command == "?am" and is_admin then
+    -- set money from player to level
+    if command == "?setmoney" or command == "?setm" or command == "?sm" and is_admin then
+        debugMessage("In setmoney")
+
+        if not isStrNumber(one) and isStrNumber(two) then
+            debugMessage("Bad Argument")
+            server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
+            return
+        end
+
+        local playerPeerID = tonumber(one)
+        local amount = roundToTwoDecimalPlaces(two)
+
+        local returnCode = setMoney(playerPeerID, amount)
+
+        if returnCode == 0 then
+            server.notify(peer_id, "[bank]",
+                "Balance from " .. getPlayerData(playerPeerID).name .. " set to $ " .. amount .. ".", 8)
+            server.notify(playerPeerID, "[Bank]", "Your balance was set to $ " .. amount, 8)
+        elseif returnCode == 1 then
+            --[[
+                do more feedback
+            ]]
+        end
+
+        -- add money to bank account
+    elseif command == "?addmoney" or command == "?addm" or command == "?am" and is_admin then
         debugMessage("In addmoney")
 
         if not isStrNumber(one) and not isStrNumber(two) then
             debugMessage("Bad Argument")
-            server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
+            server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
@@ -78,7 +103,7 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
 
         if not isStrNumber(one) and not isStrNumber(two) then
             debugMessage("Bad Argument")
-            server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
+            server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
@@ -97,22 +122,30 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         elseif returnCode == 1 then
             server.notify(peer_id, "[Bank]", debitorData.name .. " has no bank account!", 8)
         end
-    elseif command == "?transfermoney" then
+
+        -- transfer money from one user to another
+    elseif command == "?transfermoney" or command == "?transmoney" or command == "?transm" or
+        command == "?tm" and is_admin then
         debugMessage("In transfermoney")
 
         if not isStrNumber(one) and not isStrNumber(two) and not isStrNumber(three) then
             debugMessage("Bad Argument")
-            server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
+            server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
         local debitorPeerId = tonumber(two)
+        local debitorName = getPlayerData(debitorPeerId).name
         local creditorPeerId = tonumber(one)
+        local creditorName = getPlayerData(creditorPeerId).name
         local amount = roundToTwoDecimalPlaces(three)
 
         local returnCode = transferMoney(debitorPeerId, creditorPeerId, amount)
-        --[[
-            Make feedback for player
-        ]]
+        if returnCode == 0 then
+            server.notify(peer_id, "[Bank]",
+                "Transfer successful! Money transfered from " .. debitorName .. " to " .. creditorName .. ".", 8)
+            server.notify(debitorPeerId, "[Bank]", "You lost $ " .. amount .. "!", 8)
+            server.notify(creditorName, "[Bank]", "You got $ " .. amount .. "!", 8)
+        end
     end
 end
