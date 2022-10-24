@@ -87,9 +87,21 @@ function hasBankAccount(peer_id)
     end
 end
 
+-- true if is a string when converted a number
 function isStrNumber(string)
     if tonumber(string) ~= nil then
         return true
     end
     return false
+end
+
+-- notifies that something got wrong
+function returnCodesMessage(peer_id, returnCode, title)
+    if returnCode == 1 then
+        server.notify(peer_id, title, "Bank account not found!", 8)
+    elseif returnCode == 2 then
+        server.notify(peer_id, title, "User has not enough money!", 8)
+    elseif returnCode == 10 then
+        server.notify(peer_id, title, "Something went wrong! Try again.", 8)
+    end
 end
