@@ -35,7 +35,7 @@ function isPeerIdExisting(peer_id)
     local playerData = server.getPlayers()
 
     for k, v in pairs(playerData) do
-        if tonumber(k) == tonumber(peer_id) then
+        if tonumber(v.id) == tonumber(peer_id) then
             return true
         end
     end
@@ -94,9 +94,8 @@ function hasBankAccount(peer_id)
     local playerData = getPlayerData(peer_id)
     if g_savedata.playerData[playerData.steam_id] ~= nil then
         return true
-    else
-        return false
     end
+    return false
 end
 
 -- true if is a string when converted a number
