@@ -207,6 +207,8 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         else
             returnCodesMessage(peer_id, returnCode, "[Bank]")
         end
+
+        -- let you see the balance of one player
     elseif command == "?showmoney" or command == "?showm" or command == "?showbalance" or
         command == "?showbal" and is_admin then
         if not isStrNumber(one) then
