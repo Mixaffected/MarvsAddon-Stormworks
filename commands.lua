@@ -203,7 +203,7 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
             server.notify(peer_id, "[Bank]",
                 "Transfer successful! Money transfered from " .. debitorName .. " to " .. creditorName .. ".", 8)
             server.notify(debitorPeerId, "[Bank]", "You lost $ " .. amount .. "!", 8)
-            server.notify(creditorName, "[Bank]", "You got $ " .. amount .. "!", 8)
+            server.notify(creditorPeerId, "[Bank]", "You got $ " .. amount .. "!", 8)
         else
             returnCodesMessage(peer_id, returnCode, "[Bank]")
         end
