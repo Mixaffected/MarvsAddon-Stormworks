@@ -14,7 +14,6 @@ local newPlayerDataTable = {
 -- all admins steam IDs
 local admin = { "76561198346789290", "76561197976360068" }
 
-ingameTime = { ticks = 0, minutes = 0, hour = 0, day = 0, week = 0, month = 0, jear = 0 }
 timeCalcs = { uiTicks = 0, saveTicks = 0 }
 
 -- if debug messages should be send
@@ -34,33 +33,6 @@ function onDestroy()
 end
 
 function onTick(game_ticks)
-    -- does time calculations
-    ingameTime.ticks = ingameTime.ticks + 1
-    if ingameTime.ticks >= 60 then
-        ingameTime.ticks = 0
-        ingameTime.minutes = ingameTime.minutes + 1
-    end
-    if ingameTime.minutes >= 60 then
-        ingameTime.minutes = 0
-        ingameTime.hour = ingameTime.minutes + 1
-    end
-    if ingameTime.hour >= 24 then
-        ingameTime.hour = 0
-        ingameTime.day = ingameTime.minutes + 1
-    end
-    if ingameTime.day >= 7 then
-        ingameTime.day = 0
-        ingameTime.week = ingameTime.minutes + 1
-    end
-    if ingameTime.week >= 30 then
-        ingameTime.week = 0
-        ingameTime.month = ingameTime.minutes + 1
-    end
-    if ingameTime.month >= 12 then
-        ingameTime.month = 0
-        ingameTime.jear = ingameTime.minutes + 1
-    end
-
     -- update of balanceUI
     timeCalcs.uiTicks = timeCalcs.uiTicks + 1
     if timeCalcs.uiTicks >= 60 then
