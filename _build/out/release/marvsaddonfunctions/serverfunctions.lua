@@ -5,7 +5,7 @@
 -- Developed & Minimized using LifeBoatAPI - Stormworks Lua plugin for VSCode
 -- https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
 --      By Nameous Changey
--- Minimized Size: 2702 (3083 with comment) chars
+-- Minimized Size: 3451 (3832 with comment) chars
 
 
  
@@ -39,6 +39,18 @@ function getAllPlayer()
         table.insert(allPlayers, copyTable(player))
     end
     return allPlayers
+end
+
+-- returns a bool when the peer id exists
+function isPeerIdExisting(peer_id)
+    local playerData = server.getPlayers()
+
+    for k, v in pairs(playerData) do
+        if tonumber(v.id) == tonumber(peer_id) then
+            return true
+        end
+    end
+    return false
 end
 
 -- update UI for one player
@@ -93,16 +105,28 @@ function hasBankAccount(peer_id)
     local playerData = getPlayerData(peer_id)
     if g_savedata.playerData[playerData.steam_id] ~= nil then
         return true
+    end
+    return false
+end
+
+-- true if is a string when converted a number
+function isStrNumber(string)
+    if type(tonumber(string)) == "number" then
+        return true
     else
         return false
     end
 end
 
-function isStrNumber(string)
-    if tonumber(string) ~= nil then
-        return true
+-- notifies that something got wrong
+function returnCodesMessage(peer_id, returnCode, title)
+    if returnCode == 1 then
+        server.notify(peer_id, title, "Bank account not found!", 8)
+    elseif returnCode == 2 then
+        server.notify(peer_id, title, "User has not enough money!", 8)
+    elseif returnCode == 10 then
+        server.notify(peer_id, title, "Something went wrong! Try again.", 8)
     end
-    return false
 end
 
 

@@ -5,7 +5,7 @@
 -- Developed & Minimized using LifeBoatAPI - Stormworks Lua plugin for VSCode
 -- https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
 --      By Nameous Changey
--- Minimized Size: 3569 (3950 with comment) chars
+-- Minimized Size: 3544 (3925 with comment) chars
 
 
  
@@ -23,12 +23,11 @@ function setMoney(peer_id, amount)
 
     local moneyBefore = getMoney(peer_id)
 
-    -- if smaller than 0 than set zero
-    if moneyBefore - roundToTwoDecimalPlaces(amount) <= 0 then
-        amount = 0
+    g_savedata.playerData[playerData.steam_id].money = roundToTwoDecimalPlaces(amount)
+    if getMoney(peer_id) <= 0 then
+        g_savedata.playerData[playerData.steam_id].money = 0
     end
 
-    g_savedata.playerData[playerData.steam_id].money = roundToTwoDecimalPlaces(amount)
     if getMoney(peer_id) == roundToTwoDecimalPlaces(amount) then
         return 0
     else

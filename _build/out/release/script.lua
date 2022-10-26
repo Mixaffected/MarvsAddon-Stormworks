@@ -1,3 +1,9 @@
+-- Author: !true
+-- GitHub: https://github.com/nottruenow64bit
+-- Workshop: https://steamcommunity.com/id/QuestionmarkTrue/myworkshopfiles/
+
+
+
  
 g_savedata = {
     vehicleData = {},
@@ -142,7 +148,7 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
         -- other way to see current balance
     elseif command == "?money" or command == "?balance" or command == "?bal" then
         debugMessage("In balance")
-        if g_savedata.playerData[steam_id] == nil then
+        if not hasBankAccount(peer_id) then
             server.notify(peer_id, "[Bank]", "You dont have a bank account! Please rejoin the server!", 9)
             return
         end
@@ -152,13 +158,25 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
     elseif command == "?sendmoney" or command == "?sendm" then
         debugMessage("In sendmoney")
 
-        if not isStrNumber(one) and not isStrNumber(two) then
+        if not isStrNumber(one) or not isStrNumber(two) then
             debugMessage("Bad Argument")
             server.announce("[Bank]", "Bad argument! Please check your command and try again.", peer_id)
             return
         end
 
         local creditorPeerId = tonumber(one)
+
+        if not isPeerIdExisting(creditorPeerId) then
+            debugMessage("PeerID not existent")
+            server.notify(peer_id, "[Bank]", "Bad PeerID! Please enter an existing one.", 8)
+            return
+        end
+
+        if not hasBankAccount(creditorPeerId) or not hasBankAccount(peer_id) then
+            debugMessage("Has no bank account")
+            server.notify(peer_id, "[Bank]", "No bank account! This player has no bank account.", 8)
+        end
+
         local amount = roundToTwoDecimalPlaces(two)
         local debtorData = playerData
         local creditorData = getPlayerData(peer_id)
@@ -176,17 +194,64 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
     -- this lets no not admin trough
     if not is_admin then return end
 
-    -- add money to bank account
-    if command == "?addmoney" or command == "?addm" or command == "?am" and is_admin then
+    -- set money from player to level
+    if command == "?setmoney" or command == "?setm" or command == "?sm" and is_admin then
+        debugMessage("In setmoney")
+
+        if not isStrNumber(one) or not isStrNumber(two) then
+            debugMessage("Bad Argument")
+            server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
+            return
+        end
+
+        local targetPeerID = tonumber(one)
+
+        if not isPeerIdExisting(targetPeerID) then
+            debugMessage("PeerID not existent")
+            server.notify(peer_id, "[Bank]", "Bad PeerID! Please enter an existing one.", 8)
+            return
+        end
+
+        if not hasBankAccount(targetPeerID) then
+            debugMessage("Has no bank account")
+            server.notify(peer_id, "[Bank]", "No bank account! This player has no bank account.", 8)
+        end
+
+        local amount = roundToTwoDecimalPlaces(two)
+
+        local returnCode = setMoney(targetPeerID, amount)
+
+        if returnCode == 0 then
+            server.notify(peer_id, "[bank]",
+                "Balance from " .. getPlayerData(targetPeerID).name .. " set to $ " .. amount .. ".", 8)
+            server.notify(targetPeerID, "[Bank]", "Your balance was set to $ " .. amount, 8)
+        else
+            returnCodesMessage(peer_id, returnCode, "[Bank]")
+        end
+
+        -- add money to bank account
+    elseif command == "?addmoney" or command == "?addm" or command == "?am" and is_admin then
         debugMessage("In addmoney")
 
-        if not isStrNumber(one) and not isStrNumber(two) then
+        if not isStrNumber(one) or not isStrNumber(two) then
             debugMessage("Bad Argument")
             server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
         local creditorPeerId = tonumber(one)
+
+        if not isPeerIdExisting(creditorPeerId) then
+            debugMessage("PeerID not existent")
+            server.notify(peer_id, "[Bank]", "Bad PeerID! Please enter an existing one.", 8)
+            return
+        end
+
+        if not hasBankAccount(creditorPeerId) then
+            debugMessage("Has no bank account")
+            server.notify(peer_id, "[Bank]", "No bank account! This player has no bank account.", 8)
+        end
+
         local creditorData = getPlayerData(creditorPeerId)
         local amount = roundToTwoDecimalPlaces(two)
 
@@ -197,25 +262,37 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
                 "You added $ " .. tostring(amount) .. " to " .. creditorData.name .. " bank account."
                 , 8)
             server.notify(creditorPeerId, "[Bank]", "You got $ " .. tostring(amount) .. "!", 8)
-        elseif returnCode == 1 then
-            server.notify(peer_id, "[Bank]", creditorData.name .. " has no bank account!", 8)
+        else
+            returnCodesMessage(peer_id, returnCode, "[Bank]")
         end
 
         -- remove money from bank account
-    elseif command == "?removemoney" or command == "?remm" or command == "?rm" and is_admin then
+    elseif command == "?removemoney" or command == "?removem" or command == "?remm" or command == "?rm" and is_admin then
         debugMessage("In removemoney")
 
-        if not isStrNumber(one) and not isStrNumber(two) then
+        if not isStrNumber(one) or not isStrNumber(two) then
             debugMessage("Bad Argument")
             server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
         local debitorPeerId = tonumber(one)
+
+        if not isPeerIdExisting(debitorPeerId) then
+            debugMessage("PeerID not existent")
+            server.notify(peer_id, "[Bank]", "Bad PeerID! Please enter an existing one.", 8)
+            return
+        end
+
+        if not hasBankAccount(debitorPeerId) then
+            debugMessage("Has no bank account")
+            server.notify(peer_id, "[Bank]", "No bank account! This player has no bank account.", 8)
+        end
+
         local debitorData = getPlayerData(debitorPeerId)
         local amount = roundToTwoDecimalPlaces(two)
 
-        if getMoney(debitorPeerId) >= amount then return 2 end
+        if getMoney(debitorPeerId) < amount then return 2 end
         local returnCode = removeMoney(debitorPeerId, amount)
 
         if returnCode == 0 then
@@ -223,23 +300,36 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
                 "You removed $ " .. tostring(amount) .. " from " .. debitorData.name .. " bank account."
                 , 8)
             server.notify(debitorPeerId, "[Bank]", "You lost $ " .. tostring(amount) .. "!", 8)
-        elseif returnCode == 1 then
-            server.notify(peer_id, "[Bank]", debitorData.name .. " has no bank account!", 8)
+        else
+            returnCodesMessage(peer_id, returnCode, "[Bank]")
         end
 
         -- transfer money from one user to another
-    elseif command == "?transfermoney" then
+    elseif command == "?transfermoney" or command == "?transmoney" or command == "?transm" or
+        command == "?tm" and is_admin then
         debugMessage("In transfermoney")
 
-        if not isStrNumber(one) and not isStrNumber(two) and not isStrNumber(three) then
+        if not isStrNumber(one) or not isStrNumber(two) or not isStrNumber(three) then
             debugMessage("Bad Argument")
             server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
             return
         end
 
         local debitorPeerId = tonumber(two)
-        local debitorName = getPlayerData(debitorPeerId).name
         local creditorPeerId = tonumber(one)
+
+        if not isPeerIdExisting(debitorPeerId) or not isPeerIdExisting(creditorPeerId) then
+            debugMessage("PeerID not existent")
+            server.notify(peer_id, "[Bank]", "Bad PeerID! Please enter an existing one.", 8)
+            return
+        end
+
+        if not hasBankAccount(debitorPeerId) or not hasBankAccount(creditorPeerId) then
+            debugMessage("Has no bank account")
+            server.notify(peer_id, "[Bank]", "No bank account! This player has no bank account.", 8)
+        end
+
+        local debitorName = getPlayerData(debitorPeerId).name
         local creditorName = getPlayerData(creditorPeerId).name
         local amount = roundToTwoDecimalPlaces(three)
 
@@ -248,8 +338,34 @@ function onCustomCommand(full_message, peer_id, is_admin, is_auth, command, one,
             server.notify(peer_id, "[Bank]",
                 "Transfer successful! Money transfered from " .. debitorName .. " to " .. creditorName .. ".", 8)
             server.notify(debitorPeerId, "[Bank]", "You lost $ " .. amount .. "!", 8)
-            server.notify(creditorName, "[Bank]", "You got $ " .. amount .. "!", 8)
+            server.notify(creditorPeerId, "[Bank]", "You got $ " .. amount .. "!", 8)
+        else
+            returnCodesMessage(peer_id, returnCode, "[Bank]")
         end
+
+        -- let you see the balance of one player
+    elseif command == "?showmoney" or command == "?showm" or command == "?showbalance" or
+        command == "?showbal" and is_admin then
+        if not isStrNumber(one) then
+            debugMessage("Bad Argument")
+            server.notify(peer_id, "[Bank]", "Bad argument! Please check your command and try again.", 8)
+            return
+        end
+
+        local targetPeerID = tonumber(one)
+
+        if not isPeerIdExisting(targetPeerID) then
+            debugMessage("PeerID not existent")
+            server.notify(peer_id, "[Bank]", "Bad PeerID! Please enter an existing one.", 8)
+            return
+        end
+
+        if not hasBankAccount(targetPeerID) then
+            debugMessage("Has no bank account")
+            server.notify(peer_id, "[Bank]", "No bank account! This player has no bank account.", 8)
+        end
+
+        local balance = getMoney(targetPeerID)
     end
 end
 
@@ -286,6 +402,18 @@ function getAllPlayer()
         table.insert(allPlayers, copyTable(player))
     end
     return allPlayers
+end
+
+-- returns a bool when the peer id exists
+function isPeerIdExisting(peer_id)
+    local playerData = server.getPlayers()
+
+    for k, v in pairs(playerData) do
+        if tonumber(v.id) == tonumber(peer_id) then
+            return true
+        end
+    end
+    return false
 end
 
 -- update UI for one player
@@ -340,16 +468,28 @@ function hasBankAccount(peer_id)
     local playerData = getPlayerData(peer_id)
     if g_savedata.playerData[playerData.steam_id] ~= nil then
         return true
+    end
+    return false
+end
+
+-- true if is a string when converted a number
+function isStrNumber(string)
+    if type(tonumber(string)) == "number" then
+        return true
     else
         return false
     end
 end
 
-function isStrNumber(string)
-    if tonumber(string) ~= nil then
-        return true
+-- notifies that something got wrong
+function returnCodesMessage(peer_id, returnCode, title)
+    if returnCode == 1 then
+        server.notify(peer_id, title, "Bank account not found!", 8)
+    elseif returnCode == 2 then
+        server.notify(peer_id, title, "User has not enough money!", 8)
+    elseif returnCode == 10 then
+        server.notify(peer_id, title, "Something went wrong! Try again.", 8)
     end
-    return false
 end
 -- get money from peerID rounded
 function getMoney(peer_id)
@@ -365,12 +505,11 @@ function setMoney(peer_id, amount)
 
     local moneyBefore = getMoney(peer_id)
 
-    -- if smaller than 0 than set zero
-    if moneyBefore - roundToTwoDecimalPlaces(amount) <= 0 then
-        amount = 0
+    g_savedata.playerData[playerData.steam_id].money = roundToTwoDecimalPlaces(amount)
+    if getMoney(peer_id) <= 0 then
+        g_savedata.playerData[playerData.steam_id].money = 0
     end
 
-    g_savedata.playerData[playerData.steam_id].money = roundToTwoDecimalPlaces(amount)
     if getMoney(peer_id) == roundToTwoDecimalPlaces(amount) then
         return 0
     else
