@@ -1,4 +1,5 @@
 /_build/libs
 /_build/_build.lua
 /_build/out/_intermediate/
+/APIs/__pycache__/
 .vscode/
