@@ -1,4 +1,2 @@
-/_build/libs
-/_build/_build.lua
-/_build/out/_intermediate/
-.vscode/
+/_build/
+!/_build/_buildactions.lua
